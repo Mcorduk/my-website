@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -12,4 +9,37 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique // URL-friendly version of title
+  description String
+  content     String?     @db.Text // Longer markdown/content if needed
+  image       String?     // URL to project screenshot/thumbnail
+  demoUrl     String?     // Live demo link
+  githubUrl   String?     // Github Repository link
+  techStack   Technology[] // Many-to-many relation with Technology
+  featured    Boolean     @default(false)
+  status      ProjectStatus @default(COMPLETED)
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Technology {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  icon        String?   // URL to tech icon/logo
+  projects    Project[] // Many-to-many relation with Project
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
 }
